@@ -26,6 +26,7 @@ function useInView(threshold = 0.05) {
 function PhotoCard({ photo, index, onClick }: { photo: Photo; index: number; onClick: () => void }) {
   const { ref, inView } = useInView(0.04);
   const [hovered, setHovered] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const delay = (index % 6) * 0.07;
 
   return (
@@ -40,24 +41,40 @@ function PhotoCard({ photo, index, onClick }: { photo: Photo; index: number; onC
         boxShadow: hovered
           ? "0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,160,80,0.3)"
           : "0 4px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,160,80,0.05)",
-        transform2: hovered ? "translateY(-2px)" : "translateY(0)",
       }}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Image */}
-      <img
-        src={photo.image}
-        alt={`To'y rasmi ${index + 1}`}
-        className="w-full h-full object-cover block"
-        loading="lazy"
-        style={{
-          transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)",
-          transform: hovered ? "scale(1.08)" : "scale(1)",
-          display: "block",
-        }}
-      />
+      {/* Image or fallback */}
+      {imgError ? (
+        <div
+          className="w-full h-full flex flex-col items-center justify-center gap-2"
+          style={{ background: "rgba(20,8,0,0.9)", minHeight: "140px" }}
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(212,160,80,0.3)" strokeWidth="1.2">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="M21 15l-5-5L5 21" />
+          </svg>
+          <span style={{ color: "rgba(212,160,80,0.25)", fontSize: "10px", letterSpacing: "0.2em", fontFamily: "Cormorant Garamond, serif" }}>
+            {index + 1}
+          </span>
+        </div>
+      ) : (
+        <img
+          src={photo.image}
+          alt={`To'y rasmi ${index + 1}`}
+          className="w-full h-full object-cover block"
+          loading="lazy"
+          onError={() => setImgError(true)}
+          style={{
+            transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)",
+            transform: hovered ? "scale(1.08)" : "scale(1)",
+            display: "block",
+          }}
+        />
+      )}
 
       {/* Dark vignette on hover */}
       <div
