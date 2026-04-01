@@ -67,6 +67,7 @@ function PhotoCard({ photo, index, onClick }: { photo: Photo; index: number; onC
           alt={`To'y rasmi ${index + 1}`}
           className="w-full h-full object-cover block"
           loading="lazy"
+          referrerPolicy="no-referrer"
           onError={() => setImgError(true)}
           style={{
             transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)",
