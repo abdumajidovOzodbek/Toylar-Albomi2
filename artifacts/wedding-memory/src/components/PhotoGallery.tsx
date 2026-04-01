@@ -9,112 +9,176 @@ interface PhotoGalleryProps {
   photos: Photo[];
 }
 
-function useInView(threshold = 0.1) {
+function useInView(threshold = 0.05) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setInView(true); },
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setInView(true); },
       { threshold }
     );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
   }, [threshold]);
   return { ref, inView };
 }
 
 function PhotoCard({ photo, index, onClick }: { photo: Photo; index: number; onClick: () => void }) {
-  const { ref, inView } = useInView(0.05);
-  const stagger = (index % 8) * 0.06;
+  const { ref, inView } = useInView(0.04);
+  const [hovered, setHovered] = useState(false);
+  const delay = (index % 6) * 0.07;
 
   return (
     <div
       ref={ref}
-      className="group cursor-pointer relative overflow-hidden rounded-xl"
+      className="group cursor-pointer relative overflow-hidden"
       style={{
+        borderRadius: "16px",
         opacity: inView ? 1 : 0,
-        transform: inView ? "scale(1) translateY(0)" : "scale(0.95) translateY(20px)",
-        transition: `opacity 0.6s ease ${stagger}s, transform 0.6s ease ${stagger}s`,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-        aspectRatio: index % 5 === 0 ? "4/5" : index % 7 === 0 ? "3/4" : "2/3",
+        transform: inView ? "translateY(0) scale(1)" : "translateY(28px) scale(0.97)",
+        transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
+        boxShadow: hovered
+          ? "0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,160,80,0.3)"
+          : "0 4px 24px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,160,80,0.05)",
+        transform2: hovered ? "translateY(-2px)" : "translateY(0)",
       }}
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
+      {/* Image */}
       <img
         src={photo.image}
         alt={`To'y rasmi ${index + 1}`}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        className="w-full h-full object-cover block"
         loading="lazy"
-      />
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-400 flex items-end p-4"
         style={{
-          background: "linear-gradient(to top, rgba(10,4,0,0.8) 0%, rgba(20,8,0,0.3) 50%, transparent 100%)",
+          transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)",
+          transform: hovered ? "scale(1.08)" : "scale(1)",
+          display: "block",
+        }}
+      />
+
+      {/* Dark vignette on hover */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, rgba(8,3,0,0.85) 0%, rgba(8,3,0,0.2) 40%, transparent 70%)",
+          opacity: hovered ? 1 : 0,
+          transition: "opacity 0.5s ease",
+        }}
+      />
+
+      {/* Hover overlay content */}
+      <div
+        className="absolute inset-0 flex flex-col items-center justify-end pb-5 pointer-events-none"
+        style={{
+          opacity: hovered ? 1 : 0,
+          transform: hovered ? "translateY(0)" : "translateY(8px)",
+          transition: "opacity 0.4s ease, transform 0.4s ease",
         }}
       >
-        <div className="flex items-center gap-2 text-amber-300/90 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        <div
+          className="flex items-center gap-2 px-4 py-2 rounded-full"
+          style={{
+            background: "rgba(20,8,0,0.75)",
+            border: "1px solid rgba(212,160,80,0.3)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(212,160,80,0.9)" strokeWidth="1.8">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
           </svg>
-          <span className="text-xs tracking-wider">Ko'rish</span>
+          <span
+            className="text-amber-200/90 text-[10px] tracking-[0.25em] uppercase"
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          >
+            Ko'rish
+          </span>
         </div>
       </div>
+
+      {/* Golden border glow on hover */}
       <div
-        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-        style={{ boxShadow: "inset 0 0 0 1px rgba(212,160,80,0.3)" }}
+        className="absolute inset-0 rounded-2xl pointer-events-none"
+        style={{
+          boxShadow: hovered ? "inset 0 0 0 1px rgba(212,160,80,0.35)" : "none",
+          transition: "box-shadow 0.4s ease",
+        }}
       />
+    </div>
+  );
+}
+
+function SectionHeader({ label, title, count }: { label: string; title: string; count: number }) {
+  const { ref, inView } = useInView(0.15);
+  return (
+    <div
+      ref={ref}
+      className="text-center mb-20"
+      style={{
+        opacity: inView ? 1 : 0,
+        transform: inView ? "translateY(0)" : "translateY(36px)",
+        transition: "opacity 1s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1)",
+      }}
+    >
+      <div className="flex items-center justify-center gap-5 mb-5">
+        <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-700/50" />
+        <span
+          className="text-amber-600/55 text-[10px] tracking-[0.55em] uppercase font-light"
+          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+        >
+          {label}
+        </span>
+        <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-700/50" />
+      </div>
+      <h2
+        className="text-[clamp(2.5rem,6vw,4rem)] font-thin tracking-wide"
+        style={{
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          color: "rgba(255,235,180,0.88)",
+          lineHeight: 1.1,
+        }}
+      >
+        {title}
+      </h2>
+      <div className="mt-5 flex items-center justify-center gap-3">
+        <div className="h-px w-8 bg-amber-800/40" />
+        <div className="w-1 h-1 rounded-full bg-amber-600/50" />
+        <div className="h-px w-8 bg-amber-800/40" />
+      </div>
+      <p
+        className="mt-6 text-amber-600/35 text-sm tracking-[0.25em]"
+        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+      >
+        {count} ta betakror lahza
+      </p>
     </div>
   );
 }
 
 export default function PhotoGallery({ photos }: PhotoGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const { ref, inView } = useInView(0.1);
 
-  const handlePrev = () => {
-    setLightboxIndex((i) => (i !== null ? (i - 1 + photos.length) % photos.length : null));
-  };
-  const handleNext = () => {
-    setLightboxIndex((i) => (i !== null ? (i + 1) % photos.length : null));
-  };
+  const handlePrev = () => setLightboxIndex((i) => (i !== null ? (i - 1 + photos.length) % photos.length : null));
+  const handleNext = () => setLightboxIndex((i) => (i !== null ? (i + 1) % photos.length : null));
 
   return (
     <section
       id="fotoalbom"
-      className="py-24 sm:py-32 px-6"
-      style={{ background: "linear-gradient(180deg, #0d0500 0%, #100600 50%, #0a0300 100%)" }}
+      className="relative py-28 sm:py-36 px-5 sm:px-8"
+      style={{
+        background: "linear-gradient(180deg, #080300 0%, #0b0400 50%, #060200 100%)",
+      }}
     >
-      <div className="max-w-6xl mx-auto">
-        <div
-          ref={ref}
-          className="text-center mb-16"
-          style={{
-            opacity: inView ? 1 : 0,
-            transform: inView ? "translateY(0)" : "translateY(30px)",
-            transition: "opacity 0.8s ease, transform 0.8s ease",
-          }}
-        >
-          <div className="flex items-center justify-center gap-4 mb-5">
-            <div className="h-px w-12 bg-gradient-to-r from-transparent to-amber-600/50" />
-            <span className="text-amber-500/60 text-xs tracking-[0.5em] uppercase font-light">Lahzalar</span>
-            <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-600/50" />
-          </div>
-          <h2
-            className="text-4xl sm:text-5xl text-amber-100/90 font-thin tracking-wide"
-            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-          >
-            Fotoalbom
-          </h2>
-          <div className="mt-4 h-px w-16 mx-auto bg-gradient-to-r from-transparent via-amber-600/40 to-transparent" />
-          <p className="mt-6 text-amber-300/40 text-sm tracking-wide">
-            {photos.length} ta betakror lahza
-          </p>
-        </div>
+      {/* Top divider */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-20 bg-gradient-to-b from-transparent to-amber-800/25" />
 
-        <div
-          className="columns-2 sm:columns-3 lg:columns-4 gap-3 sm:gap-4"
-          style={{ columnFill: "balance" }}
-        >
+      <div className="max-w-7xl mx-auto">
+        <SectionHeader label="Lahzalar" title="Fotoalbom" count={photos.length} />
+
+        {/* Masonry grid */}
+        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 sm:gap-4" style={{ columnFill: "balance" }}>
           {photos.map((photo, i) => (
             <div key={i} className="break-inside-avoid mb-3 sm:mb-4">
               <PhotoCard photo={photo} index={i} onClick={() => setLightboxIndex(i)} />

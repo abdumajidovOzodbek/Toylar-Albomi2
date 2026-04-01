@@ -9,14 +9,15 @@ interface HeroProps {
 }
 
 export default function Hero({ coupleNames, weddingDate, location, heroTitle, heroSubtitle }: HeroProps) {
-  const heroRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const orbRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = heroRef.current;
-    if (!el) return;
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      el.style.setProperty("--parallax-y", `${scrollY * 0.4}px`);
+      const y = window.scrollY;
+      if (orbRef.current) {
+        orbRef.current.style.transform = `translate(-50%, calc(-50% + ${y * 0.25}px))`;
+      }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -26,119 +27,233 @@ export default function Hero({ coupleNames, weddingDate, location, heroTitle, he
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const [first, ...rest] = coupleNames.split(" & ");
+  const second = rest.join(" & ");
+
   return (
     <section
-      ref={heroRef}
+      ref={sectionRef}
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #1a0a00 0%, #2d1200 30%, #1a0a00 60%, #0d0500 100%)" }}
+      style={{ background: "radial-gradient(ellipse 120% 100% at 50% 0%, #211000 0%, #0e0500 45%, #070200 100%)" }}
     >
+      {/* Ambient orb */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        ref={orbRef}
+        className="absolute pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(212,160,80,0.13) 0%, transparent 70%)",
-          transform: "translateY(var(--parallax-y, 0))"
+          top: "42%", left: "50%",
+          width: "900px", height: "600px",
+          background: "radial-gradient(ellipse at center, rgba(200,130,40,0.11) 0%, rgba(160,90,20,0.05) 50%, transparent 75%)",
+          transform: "translate(-50%,-50%)",
+          filter: "blur(2px)",
         }}
       />
 
+      {/* Fine grain texture overlay */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-20"
+        className="absolute inset-0 pointer-events-none opacity-[0.025]"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a050' fill-opacity='0.15'%3E%3Cpath d='M30 30c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10zm-20 0c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat",
+        }}
+      />
+
+      {/* Subtle grid */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(212,160,80,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(212,160,80,0.025) 1px, transparent 1px)
+          `,
+          backgroundSize: "80px 80px",
         }}
       />
 
       <FloatingPetals />
 
-      <div className="relative z-10 flex flex-col items-center text-center px-6 py-20 max-w-4xl mx-auto animate-fadeInUp">
-        <div className="mb-8 flex items-center gap-3">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-400/60" />
+      {/* Ring pulse behind title */}
+      <div className="absolute left-1/2 top-[42%] pointer-events-none" style={{ transform: "translate(-50%,-50%)" }}>
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              top: "50%", left: "50%",
+              width: "480px", height: "480px",
+              border: "1px solid rgba(212,160,80,0.06)",
+              borderRadius: "50%",
+              transform: "translate(-50%,-50%)",
+              animation: `ringExpand ${4 + i * 2}s ease-out ${i * 2}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center text-center px-6 py-28 max-w-5xl mx-auto w-full">
+
+        {/* Location badge */}
+        <div className="anim-hero-1 mb-10 flex items-center gap-5">
+          <div
+            className="anim-line h-px w-20 bg-gradient-to-r from-transparent via-amber-500/60 to-amber-500/30"
+            style={{ transformOrigin: "right" }}
+          />
           <span
-            className="text-amber-300/80 text-xs tracking-[0.4em] uppercase font-light"
-            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+            className="text-amber-400/70 text-[10px] tracking-[0.55em] uppercase font-light"
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: "0.55em" }}
           >
             {location}
           </span>
-          <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-400/60" />
+          <div
+            className="anim-line h-px w-20 bg-gradient-to-l from-transparent via-amber-500/60 to-amber-500/30"
+            style={{ transformOrigin: "left" }}
+          />
         </div>
 
-        <h1
-          className="text-5xl sm:text-7xl md:text-8xl font-thin text-white mb-6 leading-tight tracking-wide"
-          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", textShadow: "0 2px 40px rgba(212,160,80,0.3)" }}
-        >
-          {coupleNames}
-        </h1>
-
-        <div className="mb-8 flex items-center gap-4">
-          <div className="h-px flex-1 max-w-[60px] bg-gradient-to-r from-transparent to-amber-500/40" />
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-amber-400/70">
-            <path d="M12 2L13.09 8.26L19 7L15.45 11.82L21 14L15.45 16.18L19 21L13.09 15.74L12 22L10.91 15.74L5 21L8.55 16.18L3 14L8.55 11.82L5 7L10.91 8.26L12 2Z" fill="currentColor" />
-          </svg>
-          <div className="h-px flex-1 max-w-[60px] bg-gradient-to-l from-transparent to-amber-500/40" />
+        {/* Names */}
+        <div className="anim-hero-2 mb-2">
+          <h1
+            className="text-[clamp(3.5rem,12vw,9rem)] font-thin leading-none text-white"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              textShadow: "0 0 120px rgba(212,130,30,0.18), 0 2px 60px rgba(0,0,0,0.5)",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {first}
+          </h1>
         </div>
 
-        <p
-          className="text-3xl sm:text-4xl text-amber-200/90 font-light mb-4 italic"
-          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-        >
-          {heroTitle}
-        </p>
+        {/* Ampersand ornament */}
+        <div className="anim-hero-3 my-1 flex items-center gap-6">
+          <div className="h-px w-12 bg-gradient-to-r from-transparent to-amber-600/30" />
+          <span
+            className="text-[clamp(2rem,5vw,4rem)] text-amber-400/80 font-thin italic leading-none"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              animation: "softPulse 4s ease-in-out infinite",
+            }}
+          >
+            &amp;
+          </span>
+          <div className="h-px w-12 bg-gradient-to-l from-transparent to-amber-600/30" />
+        </div>
 
-        <p className="text-amber-100/60 text-sm sm:text-base tracking-wide mb-3 font-light max-w-lg">
-          {heroSubtitle}
-        </p>
+        <div className="anim-hero-4 mb-12">
+          <h1
+            className="text-[clamp(3.5rem,12vw,9rem)] font-thin leading-none text-white"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              textShadow: "0 0 120px rgba(212,130,30,0.18), 0 2px 60px rgba(0,0,0,0.5)",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {second}
+          </h1>
+        </div>
 
-        <p
-          className="text-amber-300/50 text-xs tracking-[0.35em] uppercase mb-14"
-          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-        >
-          {weddingDate}
-        </p>
+        {/* Ornamental divider */}
+        <div className="anim-hero-5 flex items-center gap-4 mb-10">
+          <div className="h-px w-24 bg-gradient-to-r from-transparent to-amber-700/50" />
+          <OrnamentSVG />
+          <div className="h-px w-24 bg-gradient-to-l from-transparent to-amber-700/50" />
+        </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        {/* Subtitle block */}
+        <div className="anim-hero-5 mb-12 space-y-3 max-w-xl">
+          <p
+            className="text-[clamp(1.5rem,4vw,2.4rem)] text-amber-100/85 font-light italic leading-snug"
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          >
+            {heroTitle}
+          </p>
+          <p className="text-amber-200/45 text-sm tracking-wide font-light leading-relaxed">
+            {heroSubtitle}
+          </p>
+          <p
+            className="text-amber-500/50 text-[11px] tracking-[0.45em] uppercase pt-1"
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          >
+            {weddingDate}
+          </p>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="anim-hero-6 flex flex-col sm:flex-row gap-4">
           <button
             onClick={() => scrollTo("videolar")}
-            className="group relative px-8 py-3.5 rounded-full text-sm tracking-widest uppercase font-light text-amber-100 transition-all duration-500 overflow-hidden"
-            style={{
-              background: "linear-gradient(135deg, rgba(212,160,80,0.25) 0%, rgba(180,120,50,0.15) 100%)",
-              border: "1px solid rgba(212,160,80,0.4)",
-              backdropFilter: "blur(10px)"
-            }}
+            className="btn-shimmer group relative px-10 py-4 rounded-full text-[11px] tracking-[0.35em] uppercase font-light text-amber-100 transition-all duration-500 overflow-hidden"
+            style={{ border: "1px solid rgba(212,160,80,0.5)" }}
           >
-            <span className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-amber-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative">Videolarni ko'rish</span>
+            <span className="relative flex items-center gap-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="opacity-70">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Videolarni ko'rish
+            </span>
           </button>
+
           <button
             onClick={() => scrollTo("fotoalbom")}
-            className="group relative px-8 py-3.5 rounded-full text-sm tracking-widest uppercase font-light text-white/80 transition-all duration-500 overflow-hidden"
+            className="group relative px-10 py-4 rounded-full text-[11px] tracking-[0.35em] uppercase font-light text-white/65 transition-all duration-500 overflow-hidden hover:text-amber-100"
             style={{
-              border: "1px solid rgba(255,255,255,0.15)",
-              backdropFilter: "blur(10px)"
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.03)",
             }}
           >
-            <span className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative">Fotoalbomni ko'rish</span>
+            <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-400"
+              style={{ background: "rgba(212,160,80,0.07)" }} />
+            <span className="relative flex items-center gap-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="opacity-60">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <path d="M21 15l-5-5L5 21" />
+              </svg>
+              Fotoalbomni ko'rish
+            </span>
           </button>
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce-slow">
-        <span className="text-amber-400/30 text-[10px] tracking-[0.3em] uppercase">Pastga</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-amber-400/40">
-          <path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+      {/* Scroll indicator */}
+      <div className="bounce-slow absolute bottom-8 left-1/2 flex flex-col items-center gap-2">
+        <span className="text-amber-500/25 text-[9px] tracking-[0.45em] uppercase" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+          Pastga
+        </span>
+        <div className="w-px h-10 overflow-hidden relative">
+          <div
+            className="w-full bg-gradient-to-b from-transparent via-amber-500/50 to-transparent"
+            style={{ height: "200%", animation: "heroReveal 2s ease-in-out infinite alternate" }}
+          />
+        </div>
       </div>
     </section>
   );
 }
 
+function OrnamentSVG() {
+  return (
+    <svg width="56" height="14" viewBox="0 0 56 14" fill="none">
+      <circle cx="28" cy="7" r="2" fill="rgba(212,160,80,0.7)" />
+      <circle cx="28" cy="7" r="5" stroke="rgba(212,160,80,0.25)" strokeWidth="0.75" />
+      <line x1="0" y1="7" x2="20" y2="7" stroke="rgba(212,160,80,0.35)" strokeWidth="0.75" />
+      <line x1="36" y1="7" x2="56" y2="7" stroke="rgba(212,160,80,0.35)" strokeWidth="0.75" />
+      <circle cx="4"  cy="7" r="1.5" fill="rgba(212,160,80,0.25)" />
+      <circle cx="52" cy="7" r="1.5" fill="rgba(212,160,80,0.25)" />
+    </svg>
+  );
+}
+
 function FloatingPetals() {
-  const petals = Array.from({ length: 18 }, (_, i) => ({
+  const petals = Array.from({ length: 22 }, (_, i) => ({
     id: i,
-    left: `${(i * 5.5 + 3) % 100}%`,
-    delay: `${(i * 0.7) % 8}s`,
-    duration: `${10 + (i % 5) * 2}s`,
-    size: `${8 + (i % 4) * 4}px`,
-    opacity: 0.08 + (i % 5) * 0.03,
+    left:     `${(i * 4.6 + 2) % 100}%`,
+    delay:    `${(i * 0.6) % 9}s`,
+    duration: `${12 + (i % 6) * 2.5}s`,
+    size:     6 + (i % 5) * 3,
+    opacity:  0.05 + (i % 6) * 0.025,
+    rotate:   (i * 37) % 360,
   }));
 
   return (
@@ -146,21 +261,15 @@ function FloatingPetals() {
       {petals.map((p) => (
         <div
           key={p.id}
-          className="absolute top-0 animate-petal-fall"
-          style={{
-            left: p.left,
-            animationDelay: p.delay,
-            animationDuration: p.duration,
-          }}
+          className="petal absolute top-[-40px]"
+          style={{ left: p.left, animationDelay: p.delay, animationDuration: p.duration }}
         >
           <svg
-            width={p.size}
-            height={p.size}
-            viewBox="0 0 24 24"
-            fill="rgba(212,160,80,1)"
-            style={{ opacity: p.opacity }}
+            width={p.size} height={p.size * 1.6}
+            viewBox="0 0 10 16"
+            style={{ opacity: p.opacity, transform: `rotate(${p.rotate}deg)` }}
           >
-            <ellipse cx="12" cy="12" rx="5" ry="9" />
+            <ellipse cx="5" cy="8" rx="4" ry="7" fill="rgba(212,160,80,0.9)" />
           </svg>
         </div>
       ))}
