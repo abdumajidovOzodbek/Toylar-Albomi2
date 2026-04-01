@@ -120,7 +120,6 @@ export default function ImageLightbox({ photos, currentIndex, onClose, onPrev, o
             src={photo.image}
             alt={`Rasm ${currentIndex + 1}`}
             className="max-h-full max-w-full object-contain select-none"
-            referrerPolicy="no-referrer"
             style={{
               borderRadius: "14px",
               boxShadow: "0 30px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(212,160,80,0.1)",

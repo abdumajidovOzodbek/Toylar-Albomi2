@@ -62,7 +62,6 @@ function VideoCard({ video, index, onClick }: { video: Video; index: number; onC
             src={video.thumbnail}
             alt={video.title}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
-            referrerPolicy="no-referrer"
             style={{ transform: hovered ? "scale(1.07)" : "scale(1)" }}
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = "none";
