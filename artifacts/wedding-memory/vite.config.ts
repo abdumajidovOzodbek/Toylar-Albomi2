@@ -5,6 +5,7 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 const isBuild = process.env.npm_lifecycle_event === "build";
+const isVercel = process.env.VERCEL === "1";
 
 const rawPort = process.env.PORT;
 if (!rawPort && !isBuild) {
@@ -15,6 +16,10 @@ if (!rawPort && !isBuild) {
 const port = Number(rawPort ?? "3000");
 
 const basePath = process.env.BASE_PATH ?? "/";
+
+const outDir = isVercel
+  ? path.resolve(import.meta.dirname, "../../dist")
+  : path.resolve(import.meta.dirname, "dist/public");
 
 export default defineConfig({
   base: basePath,
@@ -45,7 +50,7 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir,
     emptyOutDir: true,
   },
   server: {
