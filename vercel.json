@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @workspace/wedding-memory run build",
+  "outputDirectory": "artifacts/wedding-memory/dist/public",
+  "installCommand": "pnpm install",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
