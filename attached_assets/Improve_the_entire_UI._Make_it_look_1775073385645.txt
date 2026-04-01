@@ -1,0 +1,31 @@
+Update the video section to use custom thumbnails from my data.
+
+Each video must display its thumbnail image instead of a default preview.
+
+Use these thumbnails:
+
+Nikoh to'yi:
+https://lh3.googleusercontent.com/u/0/d/1T61t5rf1tdmXQMwLA89pJICYOfteyG23
+
+Nahorgi osh:
+https://lh3.googleusercontent.com/u/0/d/19WtxFsZMKeW5vU2GzREdeI-xnwFoFVxN
+
+Kuyov navkari:
+https://lh3.googleusercontent.com/u/0/d/1JBWGVnl3L2o4iKSwETGC6soM85ohhsHE
+
+Requirements:
+- Show thumbnail image as the video card background
+- Add a play button icon centered on top of the thumbnail
+- Do NOT show iframe directly in the grid
+- When user clicks the thumbnail, open the video in a modal popup
+- Keep design clean and premium
+
+Also update the data structure:
+Each video should include:
+{
+  title,
+  videoLink,
+  thumbnail
+}
+
+Make sure thumbnails are properly displayed and responsive.

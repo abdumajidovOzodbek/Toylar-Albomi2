@@ -7,15 +7,18 @@ const weddingData = {
   galleryVideos: [
     {
       title: "Nikoh to'yi",
-      videoLink: "https://drive.google.com/file/d/1NlINPh4awbz6eOEfHXvTR3m013Y57LT2/preview"
+      videoLink: "https://drive.google.com/file/d/1NlINPh4awbz6eOEfHXvTR3m013Y57LT2/preview",
+      thumbnail: "https://lh3.googleusercontent.com/u/0/d/1T61t5rf1tdmXQMwLA89pJICYOfteyG23"
     },
     {
       title: "Nahorgi osh",
-      videoLink: "https://drive.google.com/file/d/1JwrzaO6uLNQsrH28NYXfu3RBb0o1MHcQ/preview"
+      videoLink: "https://drive.google.com/file/d/1JwrzaO6uLNQsrH28NYXfu3RBb0o1MHcQ/preview",
+      thumbnail: "https://lh3.googleusercontent.com/u/0/d/19WtxFsZMKeW5vU2GzREdeI-xnwFoFVxN"
     },
     {
       title: "Kuyov navkari",
-      videoLink: "https://www.youtube.com/embed/qyaTEEOmDUc"
+      videoLink: "https://www.youtube.com/embed/qyaTEEOmDUc",
+      thumbnail: "https://lh3.googleusercontent.com/u/0/d/1JBWGVnl3L2o4iKSwETGC6soM85ohhsHE"
     }
   ],
   photoAlbum: [
