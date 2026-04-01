@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Samandar & Maftunabonu To'y Xotirasi"
+version = "1.0.0"
+id = "artifacts/wedding-memory"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18838
+
+[services.development]
+run = "pnpm --filter @workspace/wedding-memory run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/wedding-memory", "run", "build" ]
+publicDir = "artifacts/wedding-memory/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18838"
+BASE_PATH = "/"
